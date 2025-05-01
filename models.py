@@ -14,7 +14,7 @@ class User(Base):
 
     user_answers = relationship('UserAnswer', back_populates='user')
     rating = relationship('Rating', uselist=False, back_populates='user')
-
+    hashed_password = Column(String)
 
 class Question(Base):
     __tablename__ = "questions"
