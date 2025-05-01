@@ -10,11 +10,9 @@ from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
 
-
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 ph = PasswordHasher()
-
 
 
 def get_db():
@@ -24,9 +22,11 @@ def get_db():
     finally:
         db.close()
 
+
 class UserCreate(BaseModel):
     username: str
     password: str
+
 
 class UserLogin(BaseModel):
     phone_number: str
@@ -44,7 +44,6 @@ def checked_password(hashed_password: str, password: str):
         return False
 
 
-
 @app.post("/register")
 def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.phone_number == user.phone_number).first()
@@ -52,7 +51,6 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Пользователь с таким номером телефона уже существует")
 
     hashed_password = hash_password(user.password)
-
 
     new_user = models.User(username=user.username, phone_number=user.phone_number,
                            hashed_password=hashed_password)
@@ -68,11 +66,11 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     if not db_user:
         raise HTTPException(status_code=400, detail="Неверный номер телефона")
 
-
     if not check_password(db_user.hashed_password, user.password):
         raise HTTPException(status_code=400, detail="Неверный номер телефона или пароль")
 
     return {"message": "Вход успешно произведен!"}
+
 
 @app.post("/questions")
 def create_question(q: schemas.QuestionCreate, db: Session = Depends(get_db)):
@@ -82,8 +80,6 @@ def create_question(q: schemas.QuestionCreate, db: Session = Depends(get_db)):
     db.refresh(question)
     return {"message": "Вопрос добавлен", "id": question.id}
 
-
-# Ответ на вопрос
 
 @app.post("/answer")
 def answer_question(answer: schemas.UserAnswerIn, db: Session = Depends(get_db)):
@@ -113,8 +109,6 @@ def answer_question(answer: schemas.UserAnswerIn, db: Session = Depends(get_db))
     db.commit()
 
     return {"correct": is_correct}
-
-
 
 
 @app.get("/rating/{user_id}", response_model=schemas.RatingOut)
