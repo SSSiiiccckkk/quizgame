@@ -15,6 +15,16 @@ class UserLogin(BaseModel):
 
 
 
+class QuestionCreate(BaseModel):
+    main_question: str
+    v1: str
+    v2: str
+    v3: Optional[str] = None
+    v4: Optional[str] = None
+    correct_answer: int
+    level: Optional[str] = "Beginner"
+    timer: Optional[int] = 45
+
 class QuestionOut(BaseModel):
     id: int
     main_question: str
@@ -26,8 +36,7 @@ class QuestionOut(BaseModel):
     timer: int
 
     class Config:
-        orm_mode = True
-
+        from_attributes = True
 
 
 class UserAnswerIn(BaseModel):

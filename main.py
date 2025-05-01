@@ -9,14 +9,12 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 
-
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
-
 
 
 # Регистрация пользователя
@@ -35,7 +33,6 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return {"message": "Пользователь успешно зарегистрирован"}
 
 
-
 # Вход пользователя
 
 @app.post("/login")
@@ -47,14 +44,15 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     return {"message": "Успешный вход"}
 
 
-
 # Получить список вопросов
 
-@app.get("/questions", response_model=List[schemas.QuestionOut])
-def get_questions(db: Session = Depends(get_db)):
-    questions = db.query(models.Question).all()
-    return questions
-
+@app.post("/questions")
+def create_question(q: schemas.QuestionCreate, db: Session = Depends(get_db)):
+    question = models.Question(**q.dict())
+    db.add(question)
+    db.commit()
+    db.refresh(question)
+    return {"message": "Вопрос добавлен", "id": question.id}
 
 
 # Ответ на вопрос
@@ -89,7 +87,6 @@ def answer_question(answer: schemas.UserAnswerIn, db: Session = Depends(get_db))
     db.commit()
 
     return {"correct": is_correct}
-
 
 
 # Получение рейтинга пользователя

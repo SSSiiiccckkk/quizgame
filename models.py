@@ -4,21 +4,16 @@ from database import Base
 from datetime import datetime
 
 
-
 class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String, nullable=False)
     phone_number = Column(String, unique=True, nullable=False)
-    reg_date = Column(DateTime, default=datetime.now())
-
+    reg_date = Column(DateTime, default=datetime.utcnow)
 
     user_answers = relationship('UserAnswer', back_populates='user')
-
-
     rating = relationship('Rating', uselist=False, back_populates='user')
-
 
 
 class Question(Base):
@@ -34,9 +29,7 @@ class Question(Base):
     level = Column(String, default='Beginner')
     timer = Column(Integer, default=45)
 
-
-    user_answers = relationship('UserAnswer', back_populates='question')
-
+    answers = relationship("UserAnswer", back_populates="question")
 
 
 class UserAnswer(Base):
@@ -49,10 +42,8 @@ class UserAnswer(Base):
     correctness = Column(Boolean, default=False)
     level = Column(String)
 
-    # Отношения с пользователем и вопросом
-    user = relationship('User', back_populates='user_answers')
-    question = relationship('Question', back_populates='user_answers')
-
+    user = relationship("User", back_populates="user_answers")
+    question = relationship("Question", back_populates="answers")
 
 
 class Rating(Base):
@@ -60,8 +51,7 @@ class Rating(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.id'), unique=True)
-    score = Column(Integer, default=0)  # Счет за правильные ответы
+    score = Column(Integer, default=0)
     level = Column(String)
-
 
     user = relationship('User', back_populates='rating')
